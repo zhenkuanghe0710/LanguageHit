@@ -2,8 +2,9 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AppMode, GeneratedCardData, TargetLanguage } from "../types";
 import { getSystemInstructionLookup, getSystemInstructionUpgrade } from "../constants";
 
-const apiKey = typeof process !== "undefined" ? process.env.API_KEY : "";
-const ai = new GoogleGenAI({ apiKey: apiKey || "" });
+// 浏览器里没有 process；若用 typeof process !== "undefined" ? process.env.API_KEY : "" 会短路成 ""，define 注入的密钥用不上。
+const apiKey = process.env.API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 const upgradeSchema: Schema = {
   type: Type.OBJECT,
