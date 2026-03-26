@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Language Hit" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap');
@@ -21,30 +22,38 @@
       .serif {
         font-family: 'Noto Serif', serif;
       }
-
+      
       /* Flip Card Utilities */
+      
       .perspective-1000 {
         perspective: 1000px;
       }
+      
       .transform-style-3d {
         transform-style: preserve-3d;
       }
+      
       .backface-hidden {
         backface-visibility: hidden;
       }
+      
       .rotate-y-180 {
         transform: rotateY(180deg);
       }
       
       /* Hide scrollbar for clean UI */
+      
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
+      
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
     </style>
+
+<link rel="stylesheet" href="/index.css">
   <script type="importmap">
 {
   "imports": {
@@ -60,10 +69,9 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <script type="module" crossorigin src="/assets/index-BMdQs7wK.js"></script>
 </head>
   <body>
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+{
+  "name": "Language Hit",
+  "short_name": "Language Hit",
+  "description": "A witty English learning assistant that transforms everyday thoughts into native expressions and creates smart vocabulary flashcards.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#4f46e5"
+}
