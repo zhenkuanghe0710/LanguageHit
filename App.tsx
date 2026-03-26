@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { History, BookOpen, Sparkles, AlertCircle, Trash2, UserCircle2, X } from 'lucide-react';
 import { AppMode, GeneratedCardData, TargetLanguage } from './types';
 import { generateCardContent } from './services/geminiService';
+import { formatGenerationError } from './services/formatGenerationError';
 import InputArea from './components/InputArea';
 import Flashcard from './components/Flashcard';
 import ModeToggle from './components/ModeToggle';
@@ -179,8 +180,8 @@ const App: React.FC = () => {
       setInputText('');
 
     } catch (err) {
-      console.error(err);
-      setError("AI is taking a nap. Please try again.");
+      console.error("generateCardContent failed:", err);
+      setError(formatGenerationError(err));
     } finally {
       setIsLoading(false);
     }

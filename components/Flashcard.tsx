@@ -14,6 +14,12 @@ interface FlashcardProps {
 const Flashcard: React.FC<FlashcardProps> = ({ data, onBookmark, onWordClick, onBack, canGoBack }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
+  const geminiTotalTokens =
+    data.geminiUsage?.totalTokenCount ??
+    (data.geminiUsage?.promptTokenCount != null && data.geminiUsage?.candidatesTokenCount != null
+      ? data.geminiUsage.promptTokenCount + data.geminiUsage.candidatesTokenCount
+      : undefined);
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
@@ -272,7 +278,23 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, onBookmark, onWordClick, on
                 </div>
                 
                 <div className="flex items-center gap-1">
-                    {/* SAVE BUTTON */}
+                    {geminiTotalTokens != null && (
+                        <span
+                            className="text-[10px] text-slate-400 font-medium tabular-nums px-1 max-w-[5.5rem] truncate sm:max-w-none"
+                            title={
+                                [
+                                    data.geminiUsage?.promptTokenCount != null &&
+                                        `输入 ${data.geminiUsage.promptTokenCount.toLocaleString()}`,
+                                    data.geminiUsage?.candidatesTokenCount != null &&
+                                        `输出 ${data.geminiUsage.candidatesTokenCount.toLocaleString()}`,
+                                ]
+                                    .filter(Boolean)
+                                    .join(' · ') || undefined
+                            }
+                        >
+                            {geminiTotalTokens.toLocaleString()} tokens
+                        </span>
+                    )}
                     <button 
                         onClick={handleBookmark}
                         className={`p-2 rounded-full transition-all duration-300 ${

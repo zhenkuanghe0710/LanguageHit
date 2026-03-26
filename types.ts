@@ -14,6 +14,13 @@ export interface ExamplePair {
   cn: string; // "Chinese Explanation"
 }
 
+/** Token counts from a single Gemini generateContent call (when API returns usage). */
+export interface GeminiTokenUsage {
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  totalTokenCount?: number;
+}
+
 export interface GeneratedCardData {
   id: string;
   type: AppMode;
@@ -38,4 +45,6 @@ export interface GeneratedCardData {
   // Metadata
   timestamp: number;
   isBookmarked?: boolean;
+  /** Present when the generating API response included usage metadata. */
+  geminiUsage?: GeminiTokenUsage;
 }

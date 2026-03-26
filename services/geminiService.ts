@@ -2,7 +2,8 @@ import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AppMode, GeneratedCardData, TargetLanguage } from "../types";
 import { getSystemInstructionLookup, getSystemInstructionUpgrade } from "../constants";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = typeof process !== "undefined" ? process.env.API_KEY : "";
+const ai = new GoogleGenAI({ apiKey: apiKey || "" });
 
 const upgradeSchema: Schema = {
   type: Type.OBJECT,
@@ -42,6 +43,10 @@ const lookupSchema: Schema = {
 };
 
 export const generateCardContent = async (input: string, mode: AppMode, lang: TargetLanguage): Promise<GeneratedCardData> => {
+  if (!apiKey?.trim()) {
+    throw new Error("MISSING_GEMINI_API_KEY");
+  }
+
   const modelName = "gemini-3-flash-preview";
   
   const isUpgrade = mode === AppMode.UPGRADE;
@@ -64,6 +69,7 @@ export const generateCardContent = async (input: string, mode: AppMode, lang: Ta
     if (!text) throw new Error("No response from AI");
 
     const json = JSON.parse(text);
+    const u = response.usageMetadata;
 
     return {
       id: crypto.randomUUID(),
@@ -84,6 +90,17 @@ export const generateCardContent = async (input: string, mode: AppMode, lang: Ta
       scenarioExampleTranslation: json.scenarioExampleTranslation,
       examples: json.examples,
       timestamp: Date.now(),
+      geminiUsage:
+        u &&
+        (u.promptTokenCount != null ||
+          u.candidatesTokenCount != null ||
+          u.totalTokenCount != null)
+          ? {
+              promptTokenCount: u.promptTokenCount,
+              candidatesTokenCount: u.candidatesTokenCount,
+              totalTokenCount: u.totalTokenCount,
+            }
+          : undefined,
     };
 
   } catch (error) {
