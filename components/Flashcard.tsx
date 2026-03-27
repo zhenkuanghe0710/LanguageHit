@@ -292,7 +292,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ data, onBookmark, onWordClick, on
                                     .join(' · ') || undefined
                             }
                         >
-                            {geminiTotalTokens.toLocaleString()} tokens
+                            {geminiTotalTokens.toLocaleString()} tks
                         </span>
                     )}
                     <button 

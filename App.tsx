@@ -9,6 +9,10 @@ import ModeToggle from './components/ModeToggle';
 import ProfileView from './components/ProfileView';
 import LanguageSelector from './components/LanguageSelector';
 import { cleanTextFromTags } from './components/RubyRenderer';
+import { DEFAULT_GEMINI_MODEL_ID } from './constants';
+
+const RESOLVED_GEMINI_MODEL_ID =
+  (process.env.GEMINI_MODEL || '').trim() || DEFAULT_GEMINI_MODEL_ID;
 
 const STORAGE_KEY = 'language_hit_history_v1';
 const USAGE_STORAGE_KEY = 'language_hit_usage_time_v1';
@@ -289,9 +293,17 @@ const App: React.FC = () => {
 
         <div className="flex items-center gap-2">
             {view === 'GENERATOR' && (
-                <LanguageSelector currentLang={targetLang} onSelect={setTargetLang} />
+                <div className="flex flex-col items-center gap-0.5 -translate-y-0.5">
+                  <LanguageSelector currentLang={targetLang} onSelect={setTargetLang} />
+                  <span
+                    className="text-[9px] leading-none text-gray-400 font-mono max-w-[148px] truncate text-center"
+                    title={RESOLVED_GEMINI_MODEL_ID}
+                  >
+                    {RESOLVED_GEMINI_MODEL_ID}
+                  </span>
+                </div>
             )}
-            
+
             <button 
             onClick={() => setView(view === 'GENERATOR' ? 'PROFILE' : 'GENERATOR')}
             className={`p-2 rounded-full transition-all ${

@@ -1,6 +1,8 @@
 import { ApiError } from "@google/genai";
+import { DEFAULT_GEMINI_MODEL_ID } from "../constants";
 
-const MODEL_ID = "gemini-3-flash-preview";
+const resolvedModelId =
+  (process.env.GEMINI_MODEL || "").trim() || DEFAULT_GEMINI_MODEL_ID;
 
 /**
  * Turns SDK / runtime errors into user-visible messages (Chinese).
@@ -18,7 +20,7 @@ export function formatGenerationError(error: unknown): string {
       ].join(" ");
     }
     if (status === 404) {
-      return `模型不可用（404）。当前使用：${MODEL_ID}。请确认该密钥在 Google AI Studio 中可访问此模型，或尝试在代码中更换为账号可用的模型名。`;
+      return `模型不可用（404）。当前使用：${resolvedModelId}。请确认该密钥在 Google AI Studio 中可访问此模型，或在部署环境设置 GEMINI_MODEL 为账号可用的模型 ID。`;
     }
     if (status === 429) {
       return `触发频率或配额限制（429）。请稍后再试。${message ? ` ${message}` : ""}`;

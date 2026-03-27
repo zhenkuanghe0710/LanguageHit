@@ -22,7 +22,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ currentLang, onSele
     <div className="relative z-50">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all"
+        className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all"
       >
         <Languages size={14} className="text-indigo-500" />
         <span>{currentLabel}</span>
