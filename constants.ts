@@ -2,6 +2,9 @@ import { TargetLanguage } from "./types";
 
 export const API_KEY_ENV = 'API_KEY';
 
+/** 未设置 GEMINI_MODEL / VITE_GEMINI_MODEL 时的默认 Gemini 模型 ID（与 vite define 一致） */
+export const DEFAULT_GEMINI_MODEL_ID = "gemini-2.5-flash-lite";
+
 const getPersona = (lang: TargetLanguage) => {
   switch (lang) {
     case TargetLanguage.JAPANESE:

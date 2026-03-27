@@ -1,9 +1,14 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { AppMode, GeneratedCardData, TargetLanguage } from "../types";
-import { getSystemInstructionLookup, getSystemInstructionUpgrade } from "../constants";
+import {
+  DEFAULT_GEMINI_MODEL_ID,
+  getSystemInstructionLookup,
+  getSystemInstructionUpgrade,
+} from "../constants";
 
 // 浏览器里没有 process；若用 typeof process !== "undefined" ? process.env.API_KEY : "" 会短路成 ""，define 注入的密钥用不上。
 const apiKey = process.env.API_KEY || "";
+const geminiModelId = (process.env.GEMINI_MODEL || "").trim() || DEFAULT_GEMINI_MODEL_ID;
 const ai = new GoogleGenAI({ apiKey });
 
 const upgradeSchema: Schema = {
@@ -48,15 +53,13 @@ export const generateCardContent = async (input: string, mode: AppMode, lang: Ta
     throw new Error("MISSING_GEMINI_API_KEY");
   }
 
-  const modelName = "gemini-3-flash-preview";
-  
   const isUpgrade = mode === AppMode.UPGRADE;
   const systemInstruction = isUpgrade ? getSystemInstructionUpgrade(lang) : getSystemInstructionLookup(lang);
   const schema = isUpgrade ? upgradeSchema : lookupSchema;
 
   try {
     const response = await ai.models.generateContent({
-      model: modelName,
+      model: geminiModelId,
       contents: input,
       config: {
         systemInstruction: systemInstruction,
