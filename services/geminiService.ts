@@ -48,7 +48,7 @@ export const generateCardContent = async (input: string, mode: AppMode, lang: Ta
     throw new Error("MISSING_GEMINI_API_KEY");
   }
 
-  const modelName = "gemini-3-flash-preview";
+  const modelName = "gemini-2.5-flash-lite";
   
   const isUpgrade = mode === AppMode.UPGRADE;
   const systemInstruction = isUpgrade ? getSystemInstructionUpgrade(lang) : getSystemInstructionLookup(lang);
