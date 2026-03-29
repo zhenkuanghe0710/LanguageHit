@@ -55,6 +55,17 @@ function sendJson(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+/** 从 Gemini SDK 的 usageMetadata 挑出前端 `GeminiTokenUsage` 所需字段 */
+function pickGeminiUsage(usageMetadata) {
+  if (usageMetadata == null || typeof usageMetadata !== "object") return undefined;
+  const { promptTokenCount, candidatesTokenCount, totalTokenCount } = usageMetadata;
+  const out = {};
+  if (typeof promptTokenCount === "number") out.promptTokenCount = promptTokenCount;
+  if (typeof candidatesTokenCount === "number") out.candidatesTokenCount = candidatesTokenCount;
+  if (typeof totalTokenCount === "number") out.totalTokenCount = totalTokenCount;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 async function readJsonBody(req) {
   if (req.body != null && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
     return req.body;
@@ -161,7 +172,7 @@ export default async function handler(req, res) {
   const schema = isRewrite ? upgradeSchema : lookupSchema;
 
   try {
-    const { text } = await runChatPipeline({
+    const { text, usageMetadata } = await runChatPipeline({
       apiKey,
       contents: message.trim(),
       systemInstruction,
@@ -169,12 +180,15 @@ export default async function handler(req, res) {
       timeoutMs: UPSTREAM_TIMEOUT_MS,
     });
 
+    const geminiUsage = pickGeminiUsage(usageMetadata);
+
     console.log("[chat]", rid, mode, "ok", "chars", text.length);
     return sendJson(res, 200, {
       success: true,
       mode,
       reply: text,
       provider: "gemini",
+      ...(geminiUsage ? { geminiUsage } : {}),
     });
   } catch (e) {
     if (e?.message === "UPSTREAM_TIMEOUT") {

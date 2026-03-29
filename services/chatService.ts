@@ -1,4 +1,20 @@
-import { AppMode, GeneratedCardData, TargetLanguage } from "../types";
+import {
+  AppMode,
+  GeneratedCardData,
+  GeminiTokenUsage,
+  TargetLanguage,
+} from "../types";
+
+function parseGeminiUsage(raw: unknown): GeminiTokenUsage | undefined {
+  if (raw == null || typeof raw !== "object") return undefined;
+  const g = raw as Record<string, unknown>;
+  const out: GeminiTokenUsage = {};
+  if (typeof g.promptTokenCount === "number") out.promptTokenCount = g.promptTokenCount;
+  if (typeof g.candidatesTokenCount === "number")
+    out.candidatesTokenCount = g.candidatesTokenCount;
+  if (typeof g.totalTokenCount === "number") out.totalTokenCount = g.totalTokenCount;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 const MODE_TO_API: Record<AppMode, "rewrite" | "flashcard"> = {
   [AppMode.UPGRADE]: "rewrite",
@@ -50,6 +66,8 @@ export async function generateCardContent(
     throw new SyntaxError("invalid json in reply");
   }
 
+  const geminiUsage = parseGeminiUsage(payload.geminiUsage);
+
   return {
     id: crypto.randomUUID(),
     type: mode,
@@ -65,5 +83,6 @@ export async function generateCardContent(
     scenarioExampleTranslation: json.scenarioExampleTranslation as string | undefined,
     examples: json.examples as GeneratedCardData["examples"],
     timestamp: Date.now(),
+    ...(geminiUsage ? { geminiUsage } : {}),
   };
 }
