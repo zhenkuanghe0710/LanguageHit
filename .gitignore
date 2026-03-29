@@ -1,5 +1,5 @@
 # Dependencies
-node_modules
+node_modules/
 
 # Build
 dist
@@ -13,3 +13,5 @@ dist-ssr
 # Logs / OS
 *.log
 .DS_Store
+.vercel
+.env*.local

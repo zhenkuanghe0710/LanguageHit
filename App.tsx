@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, BookOpen, Sparkles, AlertCircle, Trash2, UserCircle2, X } from 'lucide-react';
 import { AppMode, GeneratedCardData, TargetLanguage } from './types';
-import { generateCardContent } from './services/geminiService';
+import { generateCardContent } from './services/chatService';
 import { formatGenerationError } from './services/formatGenerationError';
 import InputArea from './components/InputArea';
 import Flashcard from './components/Flashcard';
@@ -9,10 +9,7 @@ import ModeToggle from './components/ModeToggle';
 import ProfileView from './components/ProfileView';
 import LanguageSelector from './components/LanguageSelector';
 import { cleanTextFromTags } from './components/RubyRenderer';
-import { DEFAULT_GEMINI_MODEL_ID } from './constants';
-
-const RESOLVED_GEMINI_MODEL_ID =
-  (process.env.GEMINI_MODEL || '').trim() || DEFAULT_GEMINI_MODEL_ID;
+import { SERVER_CHAT_MODEL_LABEL } from './constants';
 
 const STORAGE_KEY = 'language_hit_history_v1';
 const USAGE_STORAGE_KEY = 'language_hit_usage_time_v1';
@@ -297,9 +294,9 @@ const App: React.FC = () => {
                   <LanguageSelector currentLang={targetLang} onSelect={setTargetLang} />
                   <span
                     className="text-[9px] leading-none text-gray-400 font-mono max-w-[148px] truncate text-center"
-                    title={RESOLVED_GEMINI_MODEL_ID}
+                    title={SERVER_CHAT_MODEL_LABEL}
                   >
-                    {RESOLVED_GEMINI_MODEL_ID}
+                    {SERVER_CHAT_MODEL_LABEL}
                   </span>
                 </div>
             )}
@@ -352,7 +349,7 @@ const App: React.FC = () => {
                             <Sparkles className="text-indigo-500 relative z-10 animate-spin-slow" size={48} />
                         </div>
                         <p className="mt-6 text-gray-400 font-medium">Crafting your card...</p>
-                        <p className="text-xs text-gray-300 mt-2">Connecting to Gemini...</p>
+                        <p className="text-xs text-gray-300 mt-2">Connecting to API...</p>
                     </div>
                 ) : currentCard ? (
                     <Flashcard 

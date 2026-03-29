@@ -1,51 +1,70 @@
-import { ApiError } from "@google/genai";
-import { DEFAULT_GEMINI_MODEL_ID } from "../constants";
-
-const resolvedModelId =
-  (process.env.GEMINI_MODEL || "").trim() || DEFAULT_GEMINI_MODEL_ID;
+import { SERVER_CHAT_MODEL_LABEL } from "../constants";
 
 /**
- * Turns SDK / runtime errors into user-visible messages (Chinese).
- * Full error is still logged in App.tsx via console.error.
+ * 将运行时错误转换为用户可见中文说明；完整错误仍在 App 中 console.error。
  */
 export function formatGenerationError(error: unknown): string {
-  if (error instanceof ApiError) {
-    const { status, message } = error;
-    if (status === 400) {
-      return `请求参数被拒绝（400）。${message || "请检查输入长度或内容。"}`;
-    }
-    if (status === 401 || status === 403) {
-      return [
-        `API 密钥被拒绝（${status}）。`,
-      ].join(" ");
-    }
-    if (status === 404) {
-      return `模型不可用（404）。当前使用：${resolvedModelId}。请确认该密钥在 Google AI Studio 中可访问此模型，或在部署环境设置 GEMINI_MODEL 为账号可用的模型 ID。`;
-    }
-    if (status === 429) {
-      return `触发频率或配额限制（429）。请稍后再试。${message ? ` ${message}` : ""}`;
-    }
-    if (status !== undefined && status >= 500) {
-      return `Gemini 服务端异常（${status}）。请稍后重试。`;
-    }
-    return `请求失败${status != null ? `（${status}）` : ""}：${message || "无详细说明"}`;
-  }
-
   if (error instanceof SyntaxError) {
     return "模型返回内容无法解析为 JSON。可尝试缩短或改写输入后重试。";
   }
 
   if (error instanceof Error) {
+    if (error.name === "AbortError") {
+      return "请求超时。请稍后重试或缩短输入。";
+    }
+
+    const m = error.message;
+
+    switch (m) {
+      case "MISSING_MESSAGE":
+        return "请输入内容后再提交。";
+      case "INVALID_MODE":
+        return "内部模式参数无效。请刷新页面后重试。";
+      case "INVALID_JSON":
+      case "BODY_TOO_LARGE":
+        return "请求格式无效或体积过大。请刷新页面后重试。";
+      case "SERVICE_MISCONFIGURED":
+        return "服务端未正确配置密钥，请联系管理员。";
+      case "UPSTREAM_TIMEOUT":
+        return "上游生成超时（约 15 秒）。请稍后再试或缩短输入。";
+      case "UPSTREAM_ERROR":
+        return "上游模型服务暂时不可用。请稍后重试。";
+      case "UPSTREAM_NETWORK":
+        return "服务端无法访问模型接口（网络/TLS/DNS 被拦截或不可用）。若本机运行 `vercel dev`，请确认当前环境能访问 Google API（例如可用国际网络/VPN），并查看终端里 `[chat] … network …` 一行中的 cause 详情。";
+      case "EMPTY_MODEL_REPLY":
+        return "模型未返回正文（可能被安全策略拦截或候选为空）。请换一句输入或稍后重试。";
+      case "METHOD_NOT_ALLOWED":
+        return "请求方法不被允许。请刷新页面后重试。";
+    }
+
+    if (m.startsWith("HTTP_")) {
+      const status = parseInt(m.slice(5), 10);
+      if (status === 503) {
+        return "服务暂时不可用。请稍后重试。";
+      }
+      if (status === 504) {
+        return "上游生成超时。请稍后重试。";
+      }
+      if (status === 502) {
+        return "上游服务错误。请稍后重试。";
+      }
+      if (status === 400) {
+        return "请求被拒绝（400）。请检查输入。";
+      }
+      if (status === 405) {
+        return "请求方法错误。请刷新页面后重试。";
+      }
+      return `请求失败（${Number.isFinite(status) ? status : m}）。当前模型：${SERVER_CHAT_MODEL_LABEL}。`;
+    }
+
     if (error.message === "No response from AI") {
       return "模型未返回正文（可能被安全策略拦截或候选为空）。请换一句输入或稍后重试。";
     }
-    if (error.message === "MISSING_GEMINI_API_KEY") {
-      return "未配置 GEMINI_API_KEY。本地开发请在 .env.local 中设置；生产构建请在构建环境中注入该变量。";
-    }
-    const m = error.message;
+
     if (/failed to fetch|networkerror|load failed|network request failed/i.test(m)) {
-      return "无法连接到 Google（网络失败）。若你所在网络访问 Google 受限，需可用国际网络/VPN；也可在开发者工具 Network 面板查看是否被拦截。";
+      return "无法连接 API（网络失败）。本地开发可运行 `vercel dev` 以同时提供前端与 /api；若使用 `vite` 单独启动，请在 vite 中配置将 /api 代理到 `vercel dev` 端口，或改用 `vercel dev`。";
     }
+
     return m;
   }
 

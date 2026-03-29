@@ -1,9 +1,15 @@
-import { TargetLanguage } from "./types";
+/**
+ * 与根目录 constants.ts 中的指令保持语义一致；修改时请同步两边。
+ * （Vercel Function 为纯 JS，故此处复制文案。）
+ */
 
-/** 与 Vercel `/api/chat` 使用的模型一致（仅用于界面展示） */
-export const SERVER_CHAT_MODEL_LABEL = "gemini-2.5-flash-lite";
+const TargetLanguage = {
+  ENGLISH: "ENGLISH",
+  JAPANESE: "JAPANESE",
+  CANTONESE: "CANTONESE",
+};
 
-const getPersona = (lang: TargetLanguage) => {
+function getPersona(lang) {
   switch (lang) {
     case TargetLanguage.JAPANESE:
       return `a witty, culturally savvy Japanese expert who speaks Simplified Chinese (Mandarin). You know the subtle nuances of "Kuuki" (reading the air), anime culture, and the difference between Tatemae and Honne.`;
@@ -12,19 +18,22 @@ const getPersona = (lang: TargetLanguage) => {
     default:
       return `a witty, culturally savvy, and slightly sarcastic English expert who speaks Simplified Chinese (Mandarin).`;
   }
-};
+}
 
-const getTargetLangName = (lang: TargetLanguage) => {
+function getTargetLangName(lang) {
   switch (lang) {
-    case TargetLanguage.JAPANESE: return "Japanese (Kanji/Kana)";
-    case TargetLanguage.CANTONESE: return "Cantonese (Traditional Chinese characters with Jyutping if helpful)";
-    default: return "English";
+    case TargetLanguage.JAPANESE:
+      return "Japanese (Kanji/Kana)";
+    case TargetLanguage.CANTONESE:
+      return "Cantonese (Traditional Chinese characters with Jyutping if helpful)";
+    default:
+      return "English";
   }
-};
+}
 
-const getRubyInstruction = (lang: TargetLanguage) => {
-    if (lang === TargetLanguage.JAPANESE) {
-        return `
+function getRubyInstruction(lang) {
+  if (lang === TargetLanguage.JAPANESE) {
+    return `
 **JAPANESE FORMATTING RULES (CRITICAL)**:
 1. **Apply Ruby Tags (<ruby>...<rt>...</rt></ruby>) ONLY to these fields**:
    - \`targetPhrase\`
@@ -41,11 +50,12 @@ const getRubyInstruction = (lang: TargetLanguage) => {
    - \`scenarioExampleTranslation\`
    - **Reason**: These fields are in Simplified Chinese. Do NOT treat Chinese characters as Japanese Kanji. Keep them as plain text.
 `;
-    }
-    return "";
-};
+  }
+  return "";
+}
 
-export const getSystemInstructionUpgrade = (lang: TargetLanguage) => `
+export function getSystemInstructionUpgrade(lang) {
+  return `
 You are "Language Hit" (废话升级), ${getPersona(lang)}
 Your goal is to take ANY user input (a single word, a feeling, a Chinese phrase, broken sentence, or a random thought) and "Upgrade" it into a native, cool, precise, or idiomatically perfect **${getTargetLangName(lang)}** expression.
 
@@ -72,8 +82,10 @@ If user says "tired", instead of just translating, give a culturally relevant id
 
 Response format must be strict JSON.
 `;
+}
 
-export const getSystemInstructionLookup = (lang: TargetLanguage) => `
+export function getSystemInstructionLookup(lang) {
+  return `
 You are an expert lexicographer and teacher for **${getTargetLangName(lang)}** who explains things in Simplified Chinese (Mandarin).
 The user will input a word or phrase. Your goal is to create a high-quality "Flashcard".
 
@@ -98,3 +110,6 @@ ${getRubyInstruction(lang)}
 
 Response format must be strict JSON.
 `;
+}
+
+export { TargetLanguage };
